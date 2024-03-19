@@ -1,7 +1,7 @@
 <script lang="ts">
 	import "../app.postcss";
 	import { onMount } from "svelte";
-	import { AppShell, AppBar, Toast, initializeStores } from "@skeletonlabs/skeleton";
+	import { AppShell, AppBar, Toast, Modal, initializeStores } from "@skeletonlabs/skeleton";
 
 	// Floating UI for Popups
 	// import { computePosition, autoUpdate, flip, shift, offset, arrow } from "@floating-ui/dom";
@@ -51,5 +51,6 @@
 	</svelte:fragment> -->
 	<!-- Page Route Content -->
 	<Toast />
+	<Modal />
 	<slot />
 </AppShell>

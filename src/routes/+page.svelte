@@ -2,12 +2,16 @@
 	import { useWalletStore } from "$lib/stores/wallet";
 	import { getToastStore } from "@skeletonlabs/skeleton";
 	import { createWeb3Modal, defaultConfig } from "@web3modal/ethers";
-	import { onMount, tick } from "svelte";
+
+	import { onMount } from "svelte";
+	import LoadingFull from "$lib/components/loading-full";
 
 	// import { getToastStore } from "@skeletonlabs/skeleton";
 
 	const wallet = useWalletStore();
 	const { connected, address, network, projectId } = wallet;
+	let mintAmount = 0;
+	let busy = false;
 
 	const config = defaultConfig({
 		metadata: {
@@ -38,22 +42,24 @@
 	}
 
 	async function copyAddress() {
-		// navigator.clipboard.writeText($address).then(() => {
-		// 	const toast = getToastStore();
-		// 	toast.trigger({
-		// 		message: "Copied to clipboard",
-		// 		timeout: 3000
-		// 	});
-		// });
-
-		toast.trigger({
-			message: "Copied to clipboard",
-			timeout: 3000
+		navigator.clipboard.writeText($address).then(() => {
+			toast.trigger({
+				message: "Copied to clipboard",
+				timeout: 3000
+			});
 		});
 	}
 
 	function disconnect() {
 		modal.open();
+	}
+
+	function mint() {
+		if (busy) {
+			return;
+		}
+
+		busy = true;
 	}
 </script>
 
@@ -76,12 +82,21 @@
 			<section class="img-bg"></section>
 			<img src="/hd.png" alt="" class="peng-logo" />
 		</figure>
-		<div class="flex justify-start peng-panel">
-			<input class="input mr-8" placeholder="Amount" type="number" />
+		<form on:submit={mint} class="flex justify-start peng-panel">
+			<input
+				class="input mr-8 mint-input"
+				placeholder="Amount"
+				type="number"
+				min="1e-18"
+				step="1e-18"
+				bind:value={mintAmount}
+			/>
 
-			<button class="peng-btn" />
-		</div>
+			<button class="btn peng-btn"> Mint </button>
+		</form>
 	</div>
+
+	<LoadingFull isOpen={busy} title="Minting" body="Just a moment..." />
 </div>
 
 <style lang="scss">
@@ -100,23 +115,34 @@
 			color: #000;
 			border-radius: 0;
 			border-width: 0;
-
-			font-family: "Saira Condensed", sans-serif;
-			font-weight: 400;
-			font-style: normal;
+			font-size: 20px;
 		}
 
-		button {
-			background: url("/mint-btn.png") no-repeat;
-			background-size: contain;
+		.peng-btn {
+			background: #282862;
+			border: #49498d 4px solid;
+			color: #d9d9d9;
+
 			width: 160px;
+			position: relative;
+			font-size: 22px;
+			display: flex;
+			border-radius: 0;
 
 			&:hover {
-				background: url("/mint-btn-hover.png") no-repeat;
-				background-size: contain;
+				&::before {
+					content: "";
+					display: block;
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: 100%;
+					background-color: rgba(255, 255, 255, 0.1);
+				}
 			}
 
-			margin-left: auto;
+			// margin-left: auto;
 		}
 	}
 
@@ -148,7 +174,7 @@
 
 	.wallet-panel {
 		width: 400px;
-		height: 50px;
+		// height: 50px;
 
 		background-color: #12122c;
 		border-radius: 20px;
