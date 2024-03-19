@@ -1,7 +1,75 @@
-<!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
+<script lang="ts">
+	import { useWalletStore } from "$lib/stores/wallet";
+	import { getToastStore } from "@skeletonlabs/skeleton";
+	import { createWeb3Modal, defaultConfig } from "@web3modal/ethers";
+	import { onMount, tick } from "svelte";
+
+	// import { getToastStore } from "@skeletonlabs/skeleton";
+
+	const wallet = useWalletStore();
+	const { connected, address, network, projectId } = wallet;
+
+	const config = defaultConfig({
+		metadata: {
+			name: "PolyPeng",
+			description: "",
+			url: "",
+			icons: []
+		}
+	});
+
+	let modal: ReturnType<typeof createWeb3Modal>;
+	const toast = getToastStore();
+
+	onMount(() => {
+		modal = createWeb3Modal({
+			ethersConfig: config,
+			chains: [network],
+			projectId: projectId
+		});
+
+		modal.subscribeProvider((ev) => {
+			wallet.setProvider(ev.provider);
+		});
+	});
+
+	function connect() {
+		modal.open();
+	}
+
+	async function copyAddress() {
+		// navigator.clipboard.writeText($address).then(() => {
+		// 	const toast = getToastStore();
+		// 	toast.trigger({
+		// 		message: "Copied to clipboard",
+		// 		timeout: 3000
+		// 	});
+		// });
+
+		toast.trigger({
+			message: "Copied to clipboard",
+			timeout: 3000
+		});
+	}
+
+	function disconnect() {
+		modal.open();
+	}
+</script>
 
 <div class="home-root h-full w-full flex">
-	<button class="connect-btn" />
+	<div class="connect-panel">
+		{#if $connected}
+			<div class="wallet-panel flex">
+				<input type="text" class="input" value={$address} on:click={copyAddress} />
+				<button type="button" class="btn-icon bg-initial" on:click={disconnect}>
+					<i class="bx bx-unlink text-red-500 text-xl"></i>
+				</button>
+			</div>
+		{:else}
+			<button class="connect-btn" on:click={connect}> Connect Wallet </button>
+		{/if}
+	</div>
 
 	<div class="m-auto text-center flex flex-col items-center">
 		<figure>
@@ -33,16 +101,15 @@
 			border-radius: 0;
 			border-width: 0;
 
-			font-family: "Antonio", sans-serif;
-			font-optical-sizing: auto;
-			font-weight: 500;
+			font-family: "Saira Condensed", sans-serif;
+			font-weight: 400;
 			font-style: normal;
 		}
 
 		button {
 			background: url("/mint-btn.png") no-repeat;
 			background-size: contain;
-			min-width: 160px;
+			width: 160px;
 
 			&:hover {
 				background: url("/mint-btn-hover.png") no-repeat;
@@ -67,19 +134,60 @@
 		position: relative;
 	}
 
-	.connect-btn {
-		background: url("/connect-btn.png") no-repeat;
-		background-size: contain;
-		position: absolute;
+	.connect-panel {
 		right: 30px;
 		top: 30px;
+		position: absolute;
+
+		font-family: "Saira Condensed", sans-serif;
+		font-size: 25px;
+		font-weight: 400;
+		font-style: normal;
+		color: #fff;
+	}
+
+	.wallet-panel {
+		width: 400px;
+		height: 50px;
+
+		background-color: #12122c;
+		border-radius: 20px;
+
+		input {
+			background: transparent;
+			border-width: 0;
+
+			outline: 0 none;
+			outline-offset: 0;
+			border-radius: 0;
+			margin: 0;
+		}
+	}
+
+	.connect-btn {
+		// background: url("/connect-btn.png") no-repeat;
+		background-image: url("/peng-texture.png");
+		background-repeat: repeat;
+		background-size: auto;
+		border-radius: 20px;
+		// background-size: contain;
+		// position: absolute;
 
 		min-width: 200px;
 		min-height: 50px;
 
 		&:hover {
-			background: url("/connect-btn-hover.png") no-repeat;
-			background-size: contain;
+			&::before {
+				content: "";
+				display: block;
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				border-radius: 20px;
+				background-color: rgba(255, 255, 255, 0.05);
+			}
 		}
 	}
 </style>

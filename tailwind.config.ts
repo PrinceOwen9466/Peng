@@ -11,13 +11,13 @@ export default {
 		extend: {},
 	},
 	plugins: [
-		forms,
+		forms, 
 		typography,
 		skeleton({
 			themes: {
 				preset: [
 					{
-						name: 'modern',
+						name: 'skeleton',
 						enhancements: true,
 					},
 				],

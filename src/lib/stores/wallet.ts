@@ -1,7 +1,9 @@
 import type { PolyPeng } from "$lib/models/PolyPeng";
 import { ABI_POLY_PENG } from "$lib/models/abis";
+import type { Signer } from "ethers";
 import { BrowserProvider, Contract, type Eip1193Provider } from "ethers";
-import { writable } from "svelte/store";
+import { readable, writable, type Writable } from "svelte/store";
+import { asReadable, type PickStoreValues, type ReadableCluster, type WritableCluster } from "../../util";
 
 interface ChainNetwork {
 	rpcUrl: string;
@@ -24,55 +26,83 @@ const MAIN_NETWORK: ChainNetwork = {
 };
 
 const initialState = () => ({
-	connected: writable(true)
+	connected: writable(false),
+	address: writable(""),
 });
 
-let _walletStore: ReturnType<typeof initialState> & typeof actions;
-const _network = MAIN_NETWORK;
+
+const staticState = {
+	network: MAIN_NETWORK,
+	projectId: import.meta.env.VITE_APP_PROJECT_ID as string,
+}
+
+type WalletStore = ReturnType<typeof initialState>;
+type ReadableStore = ReturnType<typeof asReadable<PickStoreValues<WalletStore>>>;
+
+let _this: WalletStore;
+let _store: ReadableStore & typeof actions & typeof staticState;
+
+
+const _network = staticState.network;
 
 export const useWalletStore = () => {
-	if (!_walletStore) {
-		_walletStore = {
-			...initialState(),
-			...actions
-		};
+	if (!_this) {
+		_this = initialState()
+
+		_store = {
+			...asReadable(_this),
+			...actions,
+			...staticState
+		}
 	}
 
-	return _walletStore;
+	return _store;
 };
 
 let _provider: BrowserProvider;
+let _signer: Signer;
+
 const _polyPeng = new Contract(POLY_PENG_ADDRESS, ABI_POLY_PENG) as unknown as PolyPeng;
 
-async function addNetwork() {
-	try {
-		const net = _network;
-		await _provider.send("wallet_addEthereumChain", [
-			{
-				chainId: `0x${net.chainId.toString(16)}`,
-				rpcUrls: [net.rpcUrl],
-				chainName: net.name,
-				nativeCurrency: {
-					name: net.currency,
-					symbol: net.currency,
-					decimals: net.currencyDecimals
-				},
-				blockExplorerUrls: [net.explorerUrl]
-			}
-		]);
-	} catch (err) {
-		console.error("Failed to add network", err);
-	}
-}
-
 const actions = {
-	async setProvider(prov: Eip1193Provider) {
+	async addNetwork() {
+		try {
+			const net = _network;
+			await _provider.send("wallet_addEthereumChain", [
+				{
+					chainId: `0x${net.chainId.toString(16)}`,
+					rpcUrls: [net.rpcUrl],
+					chainName: net.name,
+					nativeCurrency: {
+						name: net.currency,
+						symbol: net.currency,
+						decimals: net.currencyDecimals
+					},
+					blockExplorerUrls: [net.explorerUrl]
+				}
+			]);
+		} catch (err) {
+			console.error("Failed to add network", err);
+		}
+	},
+	async setProvider(prov: Eip1193Provider|undefined) {
 		if (_provider) {
 			_provider.destroy();
 		}
 
+		if (!prov) {
+			_this.connected.set(false);
+			return;
+		}
+
 		_provider = new BrowserProvider(prov);
-		addNetwork();
+		_store.addNetwork();
+
+		_signer = await _provider.getSigner();
+		const addr = await _signer.getAddress();
+		
+		_this.connected.set(true);
+		_this.address.set(addr);
 	},
 	async mint(amount: number) {
 		const cost = await _polyPeng.cost();
