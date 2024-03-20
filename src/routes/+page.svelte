@@ -5,6 +5,8 @@
 
 	import { onMount } from "svelte";
 	import LoadingFull from "$lib/components/loading-full";
+	import { type TransactionReceipt } from "ethers";
+	import type { RpcError } from "$lib/models/misc";
 
 	// import { getToastStore } from "@skeletonlabs/skeleton";
 
@@ -33,7 +35,7 @@
 		});
 
 		modal.subscribeProvider((ev) => {
-			wallet.setProvider(ev.provider);
+			wallet.setProvider(ev.provider, modal.getChainId());
 		});
 	});
 
@@ -60,11 +62,45 @@
 		}
 
 		busy = true;
+		wallet
+			.mint(mintAmount)
+			.then((err) => {
+				if (err == false) {
+					toast.trigger({
+						background: "bg-red-500",
+						message: "Minting failed. Is your wallet connected?"
+					});
+				} else if (!err) {
+					toast.trigger({
+						message: `Successfully minted ${mintAmount} pengs`
+					});
+				} else {
+					const rpcError = err as RpcError;
+
+					const message = rpcError?.info?.error?.data.message ?? "";
+
+					console.log(JSON.stringify(err));
+					// console.log(rpcError.data);
+
+					if (message && message != "") {
+						toast.trigger({
+							background: "bg-red-500",
+							message: message
+						});
+					} else {
+						toast.trigger({
+							background: "bg-red-500",
+							message: "An unexpected error occured. Please try again"
+						});
+					}
+				}
+			})
+			.finally(() => (busy = false));
 	}
 </script>
 
 <div class="home-root h-full w-full flex">
-	<div class="connect-panel">
+	<div class="connect-panel flex">
 		{#if $connected}
 			<div class="wallet-panel flex">
 				<input type="text" class="input" value={$address} on:click={copyAddress} />
@@ -73,7 +109,7 @@
 				</button>
 			</div>
 		{:else}
-			<button class="connect-btn" on:click={connect}> Connect Wallet </button>
+			<button class="connect-btn ml-auto" on:click={connect}> Connect Wallet </button>
 		{/if}
 	</div>
 
@@ -87,8 +123,7 @@
 				class="input mr-8 mint-input"
 				placeholder="Amount"
 				type="number"
-				min="1e-18"
-				step="1e-18"
+				min="1"
 				bind:value={mintAmount}
 			/>
 
@@ -100,6 +135,8 @@
 </div>
 
 <style lang="scss">
+	@import "../../static/css/@include-media.scss";
+
 	.peng-panel {
 		background-image: url("/peng-texture.png");
 		background-repeat: repeat;
@@ -214,6 +251,32 @@
 				border-radius: 20px;
 				background-color: rgba(255, 255, 255, 0.05);
 			}
+		}
+	}
+
+	@include media("<tablet") {
+		.peng-panel {
+			width: 80%;
+		}
+
+		.connect-panel {
+			width: 80%;
+			right: 10px;
+			top: 10px;
+
+			// margin-left: auto;
+			// margin-right: auto;
+		}
+
+		.connect-btn {
+			min-width: 150px;
+			min-height: 40px;
+			font-size: 22px;
+			border-radius: 17px;
+		}
+
+		.wallet-panel {
+			width: 100%;
 		}
 	}
 </style>
