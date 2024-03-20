@@ -15,7 +15,7 @@ interface ChainNetwork {
 	currencyDecimals: number;
 }
 
-const isDev = true;
+const isDev = false;
 
 const AVAX_PENG_ADDRESS = "0x8e7f5afb7af6ce1fe690ab3dee8783d92d706a55";
 const POLY_PENG_ADDRESS = "0xB1a58fae5C0E952F64f9433789a350b8ab54D6D0";
