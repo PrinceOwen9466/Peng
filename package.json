@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "vite build && yarn run copybuild",
     "preview": "vite preview",
+    "copybuild": "robocopy /MIR /PURGE ./.svelte-kit/output/client/ ./dist/",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "vitest",
