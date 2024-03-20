@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { useWalletStore } from "$lib/stores/wallet";
-	import { getToastStore } from "@skeletonlabs/skeleton";
+	import { getToastStore, type PopupSettings } from "@skeletonlabs/skeleton";
 	import { createWeb3Modal, defaultConfig } from "@web3modal/ethers";
 
 	import { onMount } from "svelte";
 	import LoadingFull from "$lib/components/loading-full";
 	import { type TransactionReceipt } from "ethers";
 	import type { RpcError } from "$lib/models/misc";
+	import { popup } from "@skeletonlabs/skeleton";
 
 	// import { getToastStore } from "@skeletonlabs/skeleton";
 
@@ -14,6 +15,22 @@
 	const { connected, address, network, projectId } = wallet;
 	let mintAmount = 0;
 	let busy = false;
+
+	const gpopup: PopupSettings = {
+		event: "hover",
+		target: "gpopup",
+		placement: "bottom"
+	};
+
+	const tpopup: PopupSettings = {
+		...gpopup,
+		target: "tpopup"
+	};
+
+	const xpopup: PopupSettings = {
+		...gpopup,
+		target: "xpopup"
+	};
 
 	const config = defaultConfig({
 		metadata: {
@@ -99,7 +116,7 @@
 	}
 </script>
 
-<div class="home-root h-full w-full flex">
+<div class="home-root h-full w-full flex relative">
 	<div class="connect-panel flex">
 		{#if $connected}
 			<div class="wallet-panel flex">
@@ -129,6 +146,52 @@
 
 			<button class="btn peng-btn"> Mint </button>
 		</form>
+
+		<div>
+			<div class="card p-2" data-popup="gpopup" style="background-color: #282862;">
+				<p>Github</p>
+			</div>
+
+			<div class="card p-2" data-popup="tpopup" style="background-color: #282862;">
+				<p>Telegram</p>
+			</div>
+
+			<div class="card p-2" data-popup="xpopup" style="background-color: #282862;">
+				<p>X</p>
+			</div>
+		</div>
+
+		<div class="social-panel">
+			<a
+				class="btn-icon btn btn-xl bg-initial"
+				href="https://github.com/PrinceOwen9466/Peng"
+				target="_blank"
+				rel="noreferrer"
+				use:popup={gpopup}
+			>
+				<i class="bx bxl-github"></i>
+			</a>
+
+			<a
+				class="btn-icon btn btn-xl bg-initial"
+				href="https://t.me/Dexhune/1"
+				target="_blank"
+				rel="noreferrer"
+				use:popup={tpopup}
+			>
+				<i class="bx bxl-telegram" style="color:#ffffff"></i>
+			</a>
+
+			<a
+				class="btn-icon btn btn-xl bg-initial"
+				href="https://x.com/dexhune"
+				target="_blank"
+				rel="noreferrer"
+				use:popup={xpopup}
+			>
+				<i class="bx bxl-twitter"></i>
+			</a>
+		</div>
 	</div>
 
 	<LoadingFull isOpen={busy} title="Minting" body="Just a moment..." />
@@ -254,6 +317,30 @@
 		}
 	}
 
+	.social-panel {
+		position: absolute;
+		left: 30px;
+		top: 30px;
+		background-color: #282862;
+		border-radius: 10px;
+		padding: 5px 0;
+
+		a {
+			border-radius: 4px;
+			margin-left: 10px;
+			font-size: 25px;
+		}
+
+		a:last-child {
+			margin-right: 10px;
+		}
+
+		// 		*:not(:last-child) {
+		//     display: block;
+		//     margin-bottom: 30px;
+		// }
+	}
+
 	@include media("<tablet") {
 		.peng-panel {
 			width: 80%;
@@ -277,6 +364,21 @@
 
 		.wallet-panel {
 			width: 100%;
+		}
+
+		.social-panel {
+			right: 10px;
+			top: 70px;
+			left: unset;
+
+			a {
+				font-size: 20px;
+				margin-left: 6px;
+			}
+
+			a:last-child {
+				margin-right: 6px;
+			}
 		}
 	}
 </style>

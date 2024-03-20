@@ -45,7 +45,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@floating-ui/dom": "1.6.3",
+    "@floating-ui/dom": "^1.6.3",
     "@web3modal/ethers": "^4.1.1",
     "@web3modal/wallet": "^4.1.1",
     "ethers": "^6.11.1",

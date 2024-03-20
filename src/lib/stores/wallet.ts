@@ -114,8 +114,6 @@ const actions = {
 		}
 	},
 	async setProvider(prov: Eip1193Provider|undefined, chainId: number|undefined) {
-		console.log("Setting provider", _provider)
-
 		if (!prov) {
 			_this.connected.set(false);
 			if (_provider) {
@@ -145,8 +143,6 @@ const actions = {
 
 		_this.address.subscribe(x => addr = x)();
 		_this.connected.subscribe(x => connected = x)();
-
-		console.log("Provider", connected)
 
 		if (!connected) {
 			return false;
