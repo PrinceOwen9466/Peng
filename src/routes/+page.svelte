@@ -32,6 +32,11 @@
 		target: "xpopup"
 	};
 
+	const mpopup: PopupSettings = {
+		...gpopup,
+		target: "mpopup"
+	};
+
 	const config = defaultConfig({
 		metadata: {
 			name: "PolyPeng",
@@ -159,6 +164,10 @@
 			<div class="card p-2" data-popup="xpopup" style="background-color: #282862;">
 				<p>X</p>
 			</div>
+
+			<div class="card p-2" data-popup="mpopup" style="background-color: #282862;">
+				<p>Marketplace</p>
+			</div>
 		</div>
 
 		<div class="social-panel">
@@ -190,6 +199,16 @@
 				use:popup={xpopup}
 			>
 				<i class="bx bxl-twitter"></i>
+			</a>
+
+			<a
+				class="btn-icon btn btn-xl bg-initial"
+				href="https://element.market/collections/pengs-in-unusual-places?search%5Btoggles%5D%5B0%5D=BUY_NOW"
+				target="_blank"
+				rel="noreferrer"
+				use:popup={mpopup}
+			>
+				<img src="/marketplace-logo.png" alt="Marketplace Logo" />
 			</a>
 		</div>
 	</div>
@@ -331,6 +350,10 @@
 			font-size: 25px;
 		}
 
+		img {
+			width: 24px;
+		}
+
 		a:last-child {
 			margin-right: 10px;
 		}
@@ -374,6 +397,10 @@
 			a {
 				font-size: 20px;
 				margin-left: 6px;
+			}
+
+			img {
+				width: 20px;
 			}
 
 			a:last-child {
