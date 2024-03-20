@@ -164,7 +164,7 @@
 		<div class="social-panel">
 			<a
 				class="btn-icon btn btn-xl bg-initial"
-				href="https://github.com/PrinceOwen9466/Peng"
+				href="https://github.com/ElixExo/PengProtocol/tree/Dexhune"
 				target="_blank"
 				rel="noreferrer"
 				use:popup={gpopup}
